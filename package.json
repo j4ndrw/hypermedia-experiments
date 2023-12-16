@@ -1,0 +1,19 @@
+{
+  "name": "hypermedia-experiments",
+  "version": "1.0.0",
+  "packageManager": "pnpm@8.10.5",
+  "keywords": [],
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev"
+  },
+  "devDependencies": {
+    "turbo": "1.11.2"
+  },
+  "author": {
+    "name": "Andrei-Alin Murjan",
+    "email": "murjan_andreialin@yahoo.com",
+    "url": "https://www.github.com/j4ndrw"
+  },
+  "license": "ISC"
+}
