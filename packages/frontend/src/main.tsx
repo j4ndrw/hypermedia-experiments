@@ -6,7 +6,7 @@ import App from "./App.tsx";
 import "./index.css";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { httpBatchLink } from "@trpc/client";
+import { httpLink } from "@trpc/client";
 import { trpc } from "@/api/trpc";
 
 const apiHost = import.meta.env.VITE_API_HOST;
@@ -18,7 +18,7 @@ if (!apiHost)
 
 const queryClient = new QueryClient();
 const trpcClient = trpc.createClient({
-  links: [httpBatchLink({ url: apiHost })],
+  links: [httpLink({ url: apiHost })],
 });
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
