@@ -6,7 +6,7 @@ export interface Database {
 }
 
 export interface TodoTable {
-  id: Generated<number>;
+  id: Generated<string>;
   text: string;
   state: (typeof TODO_STATES)[number];
   createdAt: ColumnType<Date, string | undefined, never>;

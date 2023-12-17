@@ -1,14 +1,21 @@
-import { router } from "./trpc";
-import { getTodos, getTodo, upsertTodo, deleteTodo } from "./procedures/todos";
+import "./overrides";
+
 import { createHTTPServer } from "@trpc/server/adapters/standalone";
 import cors from "cors";
 
-const todoEndpoints = {
-  [getTodos.endpoint]: getTodos.procedure,
-  [getTodo.endpoint]: getTodo.procedure,
-  [upsertTodo.endpoint]: upsertTodo.procedure,
-  [deleteTodo.endpoint]: deleteTodo.procedure,
-} as const;
+import { router } from "./trpc";
+import { hypermedia } from "./hypermedia";
+
+import { getTodos, getTodo, upsertTodo, deleteTodo } from "./procedures/todos";
+
+import TodoContracts from "./procedures/todos/contracts";
+
+const todoEndpoints = hypermedia.routeEndpoints({
+  [TodoContracts.getTodos.endpoint]: getTodos,
+  [TodoContracts.getTodo.endpoint]: getTodo,
+  [TodoContracts.upsertTodo.endpoint]: upsertTodo,
+  [TodoContracts.deleteTodo.endpoint]: deleteTodo,
+});
 const endpoints = { ...todoEndpoints };
 
 const appRouter = router(endpoints);

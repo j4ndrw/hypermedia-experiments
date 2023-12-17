@@ -3,14 +3,35 @@ import { trpc } from "./api/trpc";
 
 function App() {
   const [newTodo, setNewTodo] = useState<string>("");
-  const { data: todos, ...getTodosState } = trpc.getTodos.useQuery();
-  const { mutate: upsertTodo } = trpc.upsertTodo.useMutation();
+  const { data: todos, ...getTodosState } = trpc.react.getTodos.useQuery();
+  const { mutate: upsertTodo } = trpc.react.upsertTodo.useMutation();
 
-  const handleUpsertAction =
-    (...args: Parameters<typeof upsertTodo>) =>
-    () => {
-      upsertTodo(...args);
-    };
+  const handleCreateTodo = (text: string) => () => {
+    upsertTodo(
+      { text },
+      {
+        onSuccess: (data) => {
+          if ("actions" in data && "getTodos" in data.actions) {
+            getTodosState.refetch();
+          }
+        },
+      },
+    );
+  };
+
+  const handleUpsert =
+    (
+      todo: NonNullable<typeof todos>[number],
+      actionKey: Exclude<keyof typeof todo.actions.upsertTodo, "endpoint">,
+    ) =>
+      async () => {
+        const response = await trpc.proxy[
+          todo.actions.upsertTodo.endpoint
+        ].mutate(todo.actions.upsertTodo[actionKey].params);
+        if ("actions" in response && "getTodos" in response.actions) {
+          getTodosState.refetch();
+        }
+      };
 
   const handleNewTodoChange = (e: ChangeEvent<HTMLInputElement>) => {
     setNewTodo(e.target.value);
@@ -23,9 +44,7 @@ function App() {
     <div className="flex flex-col">
       <div className="flex">
         <input type="text" onChange={handleNewTodoChange} />
-        <button
-          onClick={newTodo ? handleUpsertAction({ text: newTodo }) : undefined}
-        >
+        <button onClick={newTodo ? handleCreateTodo(newTodo) : undefined}>
           Add todo
         </button>
       </div>
@@ -37,11 +56,8 @@ function App() {
               <p>To Do</p>
               <input
                 type="radio"
-                title="To Do"
                 checked={todo.data.state === "to-do"}
-                onChange={handleUpsertAction(
-                  todo.actions["upsertTodo"].markAsDone.params,
-                )}
+                onChange={handleUpsert(todo, "markAsTodo")}
               />
             </div>
             <div>
@@ -49,9 +65,7 @@ function App() {
               <input
                 type="radio"
                 checked={todo.data.state === "in-progress"}
-                onChange={handleUpsertAction(
-                  todo.actions["upsertTodo"].markAsInProgress.params,
-                )}
+                onChange={handleUpsert(todo, "markAsInProgress")}
               />
             </div>
             <div>
@@ -59,9 +73,7 @@ function App() {
               <input
                 type="radio"
                 checked={todo.data.state === "done"}
-                onChange={handleUpsertAction(
-                  todo.actions["upsertTodo"].markAsDone.params,
-                )}
+                onChange={handleUpsert(todo, "markAsDone")}
               />
             </div>
           </div>
